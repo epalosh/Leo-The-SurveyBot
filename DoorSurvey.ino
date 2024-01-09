@@ -7,14 +7,23 @@
 ///////////////////////////////
 
 //Questions are asked in a "this or that" format
-String choiceOne = "Sunset";
-String choiceTwo = "Stargazing";
-String bottomText = "           ...assuming perfect weather!";
-
+String choiceOne = "Spotify";
+String choiceTwo = "Apple Music";
+String bottomText = "----------------------------------------";
+//LCD lines are 40 characters long
 ///////////////////////////////
 ///////////////////////////////
 ///////////////////////////////
 
+/* List of functions:
+
+void clearMemorySequence(int &numchoiceOne, const int addressOne, int &numchoiceTwo, const int addressTwo)
+void selectionSequence(const String choice, const int memoryAddress, int &count)
+void displayCalculating(int msDelay)
+void EEPROMWriteInt(int address, int value)
+int EEPROMReadInt(int address)
+
+*/
 
 // includes the library code:
 #include <LiquidCrystal.h> //LCD
@@ -32,6 +41,8 @@ const int choiceTwoPin = 11;
 int numChoiceOne;
 int numChoiceTwo;
 
+const int ledPin = 10;
+
 void setup() {
 
   //counters - read the integer from EEPROM
@@ -45,6 +56,9 @@ void setup() {
 
   pinMode(choiceOnePin, INPUT);
   pinMode(choiceTwoPin, INPUT);
+
+  pinMode(ledPin, OUTPUT);
+  digitalWrite(ledPin, HIGH);
 }
 
 //main loop
@@ -53,20 +67,22 @@ void loop() {
   //LCD setup and delay for scroll
   lcd.scrollDisplayLeft();
   lcd.setCursor(0, 0);
-  delay(150);
+  delay(200);
   
-
   // set the cursor to column 0, line 0
   lcd.setCursor(0, 0);
   //idle message
-  lcd.print(choiceOne + " or " + choiceTwo + "?" + "       Vote!!");
+  lcd.print(choiceOne + " or " + choiceTwo + "?" + "      Vote!!");
   //additional info if added
   lcd.setCursor(0, 1);
   lcd.print(bottomText);
 
-  //stores state of buttons
+  //checks and stores state of buttons each iteration of the loop
   int one = digitalRead(choiceOnePin);
   int two = digitalRead(choiceTwoPin);
+
+  //conditionals:
+
 
   if(one == 1){
     delay(200);
@@ -78,38 +94,21 @@ void loop() {
       lcd.setCursor(0, 1);
       lcd.print(choiceTwo + " " + numChoiceTwo);
       delay(5000);
+
+      //rechecks the buttons' state
       one = digitalRead(choiceOnePin);
       two = digitalRead(choiceTwoPin);
+      //if they are still depressed, clear memory
       if(two == 1 && one == 1){
-        lcd.clear();
-        lcd.print("Clearing memory");
-        delay(2000);
-        EEPROMWriteInt(0, 0);
-        EEPROMWriteInt(10, 0);
-        numChoiceOne = 0;
-        numChoiceTwo = 0;
+        clearMemorySequence(numChoiceOne, 0, numChoiceTwo, 10);
       }
-      lcd.clear();
       return;
     }
-    lcd.clear();
-    delay(300);
-    lcd.print("You chose:");
-    delay(300);
-    lcd.setCursor(0, 1);
-    lcd.print(choiceOne);
-    delay(1000);
-    lcd.clear();
-    delay(300);
-    lcd.print("Calculating");
-    lcd.setCursor(0, 1);
-    lcd.print("results...");
-    delay(700);
 
-    EEPROMWriteInt(0, ++numChoiceOne);
+    selectionSequence(choiceOne, 0, numChoiceOne);
 
-    lcd.clear();
     delay(300);
+
     lcd.setCursor(0, 0);
     lcd.print(choiceOne + " " + numChoiceOne);
     lcd.setCursor(0, 1);
@@ -131,34 +130,13 @@ void loop() {
       one = digitalRead(choiceOnePin);
       two = digitalRead(choiceTwoPin);
       if(two == 1 && one == 1){
-        lcd.clear();
-        lcd.print("Clearing memory");
-        delay(2000);
-        EEPROMWriteInt(0, 0);
-        EEPROMWriteInt(10, 0);
-        numChoiceOne = 0;
-        numChoiceTwo = 0;
+        clearMemorySequence(numChoiceOne, 0, numChoiceTwo, 10);
       }
-      lcd.clear();
       return;
     }
-    lcd.clear();
-    delay(300);
-    lcd.print("You chose:");
-    delay(300);
-    lcd.setCursor(0, 1);
-    lcd.print(choiceTwo);
-    delay(1000);
-    lcd.clear();
-    delay(300);
-    lcd.print("Calculating");
-    lcd.setCursor(0, 1);
-    lcd.print("results...");
-    delay(700);
 
-    EEPROMWriteInt(10, ++numChoiceTwo);
+    selectionSequence(choiceTwo, 10, numChoiceTwo);
 
-    lcd.clear();
     delay(300);
     lcd.setCursor(0, 0);
     lcd.print(choiceOne + " " + numChoiceOne);
@@ -167,7 +145,63 @@ void loop() {
     delay(5000);
     lcd.clear();
   }
+}
 
+
+
+
+
+
+
+//functions!!
+
+//clears system memory
+void clearMemorySequence(int &numchoiceOne, const int addressOne, int &numchoiceTwo, const int addressTwo) {
+  lcd.clear();
+  lcd.print("Clearing memory");
+  delay(2000);
+  EEPROMWriteInt(addressOne, 0);
+  EEPROMWriteInt(addressTwo, 0);
+  numChoiceOne = 0;
+  numChoiceTwo = 0;
+  lcd.clear();
+}
+
+//Registers the selection and shows the user. Then increments the selection count in memory
+void selectionSequence(const String choice, const int memoryAddress, int &count) {
+  lcd.clear();
+  delay(300);
+  lcd.print("You chose:");
+  delay(300);
+  lcd.setCursor(0, 1);
+  lcd.print(choice);
+  delay(1000);
+  lcd.clear();
+
+  displayCalculating(700);
+
+  EEPROMWriteInt(memoryAddress, ++count);
+
+  lcd.clear();
+}
+
+/*
+//displays the current results
+void displayResults(const String choiceOne, const int numChoiceOne, const String choiceTwo, const int numChoiceTwo, int msTime) {
+  lcd.setCursor(0, 0);
+  lcd.print(choiceOne + " " + numChoiceOne);
+  lcd.setCursor(0, 1);
+  lcd.print(choiceTwo + " " + numChoiceTwo);
+  delay(msTime);
+}
+*/
+
+//Displays "Calculating..." on the screen for a determined amount of time
+void displayCalculating(int msDelay) {
+  lcd.setCursor(0, 0);
+  lcd.print("Calculating...");
+  delay(msDelay);
+  lcd.clear();
 }
 
 // Function to write an integer to EEPROM
@@ -183,8 +217,3 @@ int EEPROMReadInt(int address) {
   byte highByteValue = EEPROM.read(address + 1);  // Read high byte
   return (lowByteValue | (highByteValue << 8));  // Combine bytes into an integer
 }
-
-
-//extra
-
-// print the number of seconds since reset: millis() / 1000
