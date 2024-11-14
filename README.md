@@ -10,3 +10,5 @@ Leo is designed with an Arduino microcontroller and a simple interface that make
 - **Real-Time Voting**: Passersby can vote using buttons mounted on the device.
 - **Instant Feedback**: Displays the updated vote tally right after each vote.
 - **Vote Persistence**: Saves votes to EEPROM, persisting power loss or tampering.
+
+()[https://github.com/epalosh/Leo-The-SurveyBot/blob/main/Picture.png]
