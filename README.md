@@ -2,7 +2,9 @@
 
 **Leo** is a dorm room survey bot that invites passersby to vote on daily "this or that" questions, adding an interactive and fun element to dorm life! Mounted on the door, Leo displays a question each day, collects votes in real-time, and immediately updates the display after a vote is registered.
 
-Leo is designed with an Arduino microcontroller and a simple interface that makes participation easy and engaging. Read on to learn more about the project, its setup, and how to customize it for your own space!
+This project was inspired by door-mounted whiteboards that people in my dorm would put similar "this or that" quizzes on each day.
+
+Leo is designed with an Arduino microcontroller and a simple interface that makes participation easy.
 
 ## ✨ **Features**
 
